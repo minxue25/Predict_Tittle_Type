@@ -9,8 +9,8 @@ from decimal import Decimal
 
 lemmatizer = WordNetLemmatizer()
 # read file and get data
-df = pd.read_csv('hn2018_2019.csv', usecols=['Title', 'Post Type', 'Created At']) #, encoding='latin-1')
-# df = pd.read_csv('temp.csv', usecols=['Title', 'Post Type', 'Created At']) #, encoding='latin-1')
+# df = pd.read_csv('hn2018_2019.csv', usecols=['Title', 'Post Type', 'Created At']) #, encoding='latin-1')
+df = pd.read_csv('temp1.csv', usecols=['Title', 'Post Type', 'Created At']) #, encoding='latin-1')
 df18 = df[(True ^ df['Created At'].str.contains('2019'))]
 df19 = df[(True ^ df['Created At'].str.contains('2018'))]
 list_dt18 = np.array(df18)
@@ -259,7 +259,6 @@ def testing_data(vdict_with_pro, savefile, filename):
         s = s + "\t" + types.index[i]
     s = s + "\r\n"
     for obj in list_dt19:
-        print(result_row_num)
         title = obj[0]
         post_type = obj[1]
         words_list = filter_title(title.lower(), False)
@@ -293,12 +292,12 @@ def testing_data(vdict_with_pro, savefile, filename):
     for real in range(post_type_num):
         matrix = matrix + types.index[real]
         for pred in range(post_type_num):
-            matrix = matrix + "\t" + confusion_matrix[real][pred]
-        matrix = matrix + "\t" + real_list[real] + "\r\n"
+            matrix = matrix + "\t" + str(confusion_matrix[real][pred])
+        matrix = matrix + "\t" + str(real_list[real]) + "\r\n"
     matrix = matrix + "total"
     for index in range(len(predict_list)):
-        matrix = matrix + "\t" + predict_list[index]
-    matrix = matrix + "\t" + total_number
+        matrix = matrix + "\t" + str(predict_list[index])
+    matrix = matrix + "\t" + str(total_number)
     print(matrix)
 
     right = 0
@@ -424,9 +423,11 @@ def change_infrequent(dictionary, less, frequent):
     return [dic3_3, result_list]
 
 
-def cal_frequent(percentage, list):
-    index = math.floor(percentage * len(list))
-    limit_frequent = list[index]
+def cal_frequent(percentage, v_list):
+    if v_list is not None and len(v_list)>0:
+        index = math.floor(percentage * len(v_list))
+        print(index, v_list)
+        limit_frequent = v_list[index]
     return limit_frequent
 
 
@@ -450,32 +451,41 @@ if task3_3 is not None:
     for item in dictionary:
         frequent_list.append(dictionary.get(item)[post_type_num])
     frequent_list.sort(reverse=True)
-    frequent = cal_frequent(0.05, frequent_list)
-    new_dictionary1 = change_infrequent(dictionary, False, frequent)
-    analyse_fre_result_list.append(new_dictionary1[1])
-    frequent = cal_frequent(0.15, frequent_list)
-    new_dictionary1 = change_infrequent(new_dictionary1[0], False, frequent)
-    analyse_fre_result_list.append(new_dictionary1[1])
-    frequent = cal_frequent(0.2, frequent_list)
-    new_dictionary1 = change_infrequent(new_dictionary1[0], False, frequent)
-    analyse_fre_result_list.append(new_dictionary1[1])
-    frequent = cal_frequent(0.25, frequent_list)
-    new_dictionary1 = change_infrequent(new_dictionary1[0], False, frequent)
-    analyse_fre_result_list.append(new_dictionary1[1])
+    if frequent_list is not None and len(frequent_list)>0 :
+        frequent = cal_frequent(0.05, frequent_list)
+        new_dictionary1 = change_infrequent(dictionary, False, frequent)
+        analyse_fre_result_list.append(new_dictionary1[1])
+        frequent = cal_frequent(0.15, frequent_list)
+        new_dictionary1 = change_infrequent(new_dictionary1[0], False, frequent)
+        analyse_fre_result_list.append(new_dictionary1[1])
+        frequent = cal_frequent(0.2, frequent_list)
+        new_dictionary1 = change_infrequent(new_dictionary1[0], False, frequent)
+        analyse_fre_result_list.append(new_dictionary1[1])
+        frequent = cal_frequent(0.25, frequent_list)
+        new_dictionary1 = change_infrequent(new_dictionary1[0], False, frequent)
+        analyse_fre_result_list.append(new_dictionary1[1])
+    else:
+        print("")
 
 
 
 def change_smooth(smooth):
     start_time = time.time()
     print('start3.4..', smooth)
-    vdict_with_pro = training_data(dictionary, smooth, 'wordlength-model.txt', False, 'remove_words.txt')
+    vdict_with_pro = training_data(dictionary, smooth, False, 'smooth-model.txt', False, 'remove_words3_4.txt')
     time1 = time.time()
     print("finish pro3.4: ", time1 - start_time, "s")
-
     # Test
-    testing_data(vdict_with_pro, 'wordlength-result.txt')
+    print("start testing...")
+    result_list = testing_data(vdict_with_pro, False, 'smooth-result.txt')
     time1 = time.time()
     print("finish task3.4: ", time1-start_time, "s")
+    return result_list
 
-for i in range(11):
-    change_smooth(i/10)
+task3_4 = input("Please press keyboard to continue Task3.3:")
+if task3_4 is not None:
+    analyse_smooth_result_list = []
+    for i in range(11):
+        result_list = change_smooth(i/10)
+        analyse_smooth_result_list.append(result_list)
+
