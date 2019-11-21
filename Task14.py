@@ -123,8 +123,8 @@ def recreate_list(word_list, save_in_remove_file):
                 if ordinal_numeral:
                     if save_in_remove_file:
                         remove_set.add(item[0])
-                    else:
-                        new_list.append(item[0])
+                else:
+                    new_list.append(item[0])
                 # number_word = split_cd(item[0])
                 # if (number_word[0] is not "") and save_in_remove_file:
                 #     remove_set.add(number_word[0])
@@ -181,8 +181,8 @@ def recreate_list(word_list, save_in_remove_file):
                 if ordinal_numeral:
                     if save_in_remove_file:
                         remove_set.add(item[0])
-                    else:
-                        new_list.append(item[0])
+                else:
+                    new_list.append(item[0])
         elif prior_is_noun is True:
             prior_is_noun = False
     return new_list
