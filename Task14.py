@@ -585,7 +585,7 @@ if task3_1 is not None:
     time1 = time.time()
     print("Create vocabulary cost: ", time1 - start_time, "s")
     result = training_testing_data(dic3_1, 0.5, True, 'stopword-model.txt', False, 'remove_words3_1.txt', True, 'stopword-result.txt', False, "vocabulary3_1.txt", print_result)
-    print("Task3.1 Completed! Please read 'stopword-model.txt' ^u^")
+    print("Task3.1 Completed! Please read 'stopword-model.txt' and 'stopword-result.txt'! ^u^")
 print("===================================================================================================\n")
 
 
@@ -603,7 +603,7 @@ if task3_2 is not None:
     time1 = time.time()
     print("Create vocabulary cost: ", time1 - start_time, "s")
     result = training_testing_data(dic3_2, 0.5, True, 'wordlength-model.txt', False, 'remove_words3_2.txt', True, 'wordlength-result.txt', False, "vocabulary3_2.txt", print_result)
-    print("Task3.2 Completed! Please read 'wordlength-model.txt' ^u^")
+    print("Task3.2 Completed! Please read 'wordlength-model.txt' and 'wordlength-result.txt'! ^u^")
 print("===================================================================================================\n")
 
 
