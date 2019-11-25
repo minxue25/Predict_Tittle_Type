@@ -13,6 +13,10 @@ import math
 from decimal import Decimal
 import matplotlib.pyplot as plt
 
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+
 lemmatizer = WordNetLemmatizer()
 # read file and get data
 df = pd.read_csv('hn2018_2019.csv', usecols=['Title', 'Post Type', 'Created At']) #, encoding='latin-1')
@@ -36,18 +40,7 @@ punctuation_table = ["!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",",
                      "<", "=", ">", "?", "@", "[", "\\", "]", "^", "`", "{", "|", "}", "~",
                      "﻿", "/", ".", "-", "_", "，", "≈", "≥", "≤", "≠", "⋆", "⋅", "⋙", "√",
                      "∞", "‘", "’", "“", "”", "„", "•", "…", "‹", "›", "→", "↔", "⇆", "−",
-                     "∘", "∙", "∩", "─", ""]
-
-# punctuation_table = ["!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", ":", ";",
-#                      "<", "=", ">", "?", "@", "[", "\\", "]", "^", "`", "{", "|", "}", "~",
-#                      "﻿", "/", ".", "-", "_", "，", "≈", "≥", "≤", "≠", "⋆", "⋅", "⋙", "√",
-#                      "∞", "‘", "’", "“", "”", "„", "•", "…", "‹", "›", "→", "↔", "⇆", "−",
-#                      "∘", "∙", "∩", "⏰", "⏱", "⏲️", "⏳", "─", ""]
-
-# punctuation_table = ["!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", ":", ";",
-#                      "<", "=", ">", "?", "@", "[", "\\", "]", "^", "{", "|", "}", "~", "/",
-#                      "-", "_", "`"]
-
+                     "∘", "∙", "∩", "─"]
 
 number_table = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
@@ -317,9 +310,6 @@ def cal_score(tittle_word_list, total_doc_len, vdict_with_prob):
     for token in tittle_word_list:
         token = token.lower()
         if vdict_with_prob.get(token) is not None:
-            # for index1 in range(post_type_num):
-            #     token_prob = vdict_with_prob.get(token)  # {key, [log, log...]..}
-            #     words_prob[index1] = words_prob[index1] + float(token_prob[index1])
             words_prob = list(map(lambda x, y: x + float(y), words_prob, vdict_with_prob.get(token)))
         else:
             continue
@@ -391,12 +381,12 @@ def testing_data(vdict_with_pro1, savefile, filename, print_result):
         for real in range(post_type_num):
             matrix = matrix + types.index[real]
             for pred in range(post_type_num):
-                matrix = matrix + "\t\t\t" + str(confusion_matrix[real][pred])
-            matrix = matrix + "\t\t\t" + str(real_list[real]) + "\r\n"
+                matrix = matrix + "\t\t" + str(confusion_matrix[real][pred])
+            matrix = matrix + "\t\t" + str(real_list[real]) + "\r\n"
         matrix = matrix + "total"
         for index in range(len(predict_list)):
-            matrix = matrix + "\t\t\t" + str(predict_list[index])
-        matrix = matrix + "\t\t\t" + str(total_number) + "\n"
+            matrix = matrix + "\t\t" + str(predict_list[index])
+        matrix = matrix + "\t\t" + str(total_number) + "\n"
         print(matrix)
 
     right = 0
@@ -594,7 +584,7 @@ if task3_1 is not None:
     # optimize_dic_word_length(dic3_1, 2, 999)
     time1 = time.time()
     print("Create vocabulary cost: ", time1 - start_time, "s")
-    result = training_testing_data(dic3_1, 0.7, True, 'stopword-model.txt', False, 'remove_words3_1.txt', True, 'stopword-result.txt', False, "vocabulary3_1.txt", print_result)
+    result = training_testing_data(dic3_1, 0.5, True, 'stopword-model.txt', False, 'remove_words3_1.txt', True, 'stopword-result.txt', False, "vocabulary3_1.txt", print_result)
     print("Task3.1 Completed! Please read 'stopword-model.txt' ^u^")
 print("===================================================================================================\n")
 
