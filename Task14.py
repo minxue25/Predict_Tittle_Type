@@ -1,3 +1,8 @@
+# -------------------------------------------------------
+# Project 2
+# Written by Minxue Sun 40084491, Tian Wang 40079289
+# For COMP 6721 Section FJ – Fall 2019
+# --------------------------------------------------------
 import pandas as pd
 import numpy as np
 import nltk
@@ -234,7 +239,7 @@ def create_vocabulary(vdict, savevocabulary, vocabulary_filename):
         i = 1
         output_file = open(vocabulary_filename, 'a')
         for item in vocabulary:
-            output_file.write(str(i) + "\n")# + "  " + item + "  " + str(vdict.get(item)) + "\n")
+            output_file.write(str(i) + "  " + item + "\n")  # + "  " + str(vdict.get(item)) + "\n")
             i = i + 1
         output_file.close()
     return vocabulary
@@ -344,10 +349,9 @@ def filter_testing_data(list_dt2019):
 def testing_data(vdict_with_pro1, savefile, filename, print_result):
     doc_len = len(list_dt18)
     confusion_matrix = np.zeros([post_type_num, post_type_num], dtype=int)
-    result_row_num = 1
+    result_row_num = 0
     output_file = open(filename, 'a')
     if savefile:
-        # output_file = open(filename, 'a')
         output_file.write("counter,  title,  predict classification")
         for i in range(post_type_num):
             output_file.write(",  " + types.index[i])
@@ -355,12 +359,13 @@ def testing_data(vdict_with_pro1, savefile, filename, print_result):
     for obj in list_dt19:
         title = obj[0]
         post_type = obj[1]
-        words_list = testing_data2019[result_row_num - 1]#filter_title(title, False)
+        words_list = testing_data2019[result_row_num]#filter_title(title, False)
         probs = cal_score(words_list, doc_len, vdict_with_pro1)
         predict_title_type = predict_type(probs)
         predict_index = type_dict[predict_title_type][0]
         real_index = type_dict[post_type][0]
         confusion_matrix[real_index][predict_index] = confusion_matrix[real_index][predict_index] + 1
+        result_row_num = result_row_num + 1
         if savefile:
             result = 'right'
             if predict_title_type != post_type:
@@ -369,7 +374,6 @@ def testing_data(vdict_with_pro1, savefile, filename, print_result):
             for index in range(post_type_num):
                 output_file.write("  " + str(probs[index]))
             output_file.write("  " + str(post_type) + "  " + str(result) + "\r\n")
-        result_row_num = result_row_num + 1
     if savefile:
         output_file.close()
     predict_list = np.sum(confusion_matrix, axis=0)
@@ -551,147 +555,139 @@ testing_data2019 = filter_testing_data(list_dt19)
 time1 = time.time()
 print("filter testing data cost: ", time1 - start_time, "s")
 
-task_num = input("Please input task number:\n1.Task1 Task2"
-              "\n3.Task3.1(stop words) \n4.Task3.2 (word length) \n5.Task3.3 (frequency) \n6.Task3.4 (smooth)\n")
 
-if task_num is "1":
-    print("Start training data...")
-    start_time = time.time()
-    vdict_with_pro = training_data(dictionary, 0.5, True, 'model-2018.txt', True, 'remove_words.txt', True, "vocabulary.txt")
-    time1 = time.time()
-    print("Training data cost: ", time1 - start_time, "s")
-    print("Task1 Completed! Please read 'model-2018.txt', 'vocabulary.txt' and 'remove_words.txt' ^u^ ")
-    print("===================================================================================================\n")
+print("Start training data...")
+start_time = time.time()
+vdict_with_pro = training_data(dictionary, 0.5, True, 'model-2018.txt', True, 'remove_words.txt', True, "vocabulary.txt")
+time1 = time.time()
+print("Training data cost: ", time1 - start_time, "s")
+print("Task1 Completed! Please read 'model-2018.txt', 'vocabulary.txt' and 'remove_words.txt' ^u^ ")
+print("===================================================================================================\n")
 
 # Task2
-    print("================================== Task 2 =========================================================")
-    task2 = input("Please press keyboard to continue Task2: (1 is print result, else not)")
-    if task2 is not None:
-        print_result = False
-        if task2 is "1":
-            print_result = True
-        print('Start Task2...')
-        start_time = time.time()
-        result = testing_data(vdict_with_pro, True, 'baseline-result.txt', print_result)
-        time1 = time.time()
-        print("\nTesting data cost: ", time1-start_time, "s")
-        print("Task2 Completed! Please read 'baseline-result.txt' ^u^")
-    print("===================================================================================================\n")
-    task_num = input("Please input task number:\n3. Task3.1(stop words) \n4. Task3.2 (word length) \n5. Task3.3 (frequency) \n6. Task3.4 (smooth)\n")
+print("================================== Task 2 =========================================================")
+task2 = input("Please press keyboard to continue Task2: (1 is print result, else not)")
+if task2 is not None:
+    print_result = False
+    if task2 is "1":
+        print_result = True
+    print('Start Task2...')
+    start_time = time.time()
+    result = testing_data(vdict_with_pro, True, 'baseline-result.txt', print_result)
+    time1 = time.time()
+    print("\nTesting data cost: ", time1-start_time, "s")
+    print("Task2 Completed! Please read 'baseline-result.txt' ^u^")
+print("===================================================================================================\n")
+
 
 #  Task3.1
-if task_num is "3":
-    print("================================== Task 3.1 =======================================================")
-    task3_1 = input("Please press keyboard to continue 3.1: (1 is print result, else not)")
-    if task3_1 is not None:
-        print_result = False
-        if task3_1 is "1":
-            print_result = True
-        print('Start Task3.1...')
-        start_time = time.time()
-        dic3_1 = dictionary.copy()
-        optimize_dic_stop_word(dic3_1)
-        # optimize_dic_word_length(dic3_1, 2, 999)
-        time1 = time.time()
-        print("Create vocabulary cost: ", time1 - start_time, "s")
-        result = training_testing_data(dic3_1, 0.7, True, 'stopword-model.txt', False, 'remove_words3_1.txt', True, 'stopword-result.txt', False, "vocabulary3_1.txt", print_result)
-        print("Task3.1 Completed! Please read 'stopword-model.txt' ^u^")
-    print("===================================================================================================\n")
-    task_num = input("Please input task number:\n4. Task3.2 (word length) \n5. Task3.3 (frequency) \n6. Task3.4 (smooth)\n")
+print("================================== Task 3.1 =======================================================")
+task3_1 = input("Please press keyboard to continue 3.1: (1 is print result, else not)")
+if task3_1 is not None:
+    print_result = False
+    if task3_1 is "1":
+        print_result = True
+    print('Start Task3.1...')
+    start_time = time.time()
+    dic3_1 = dictionary.copy()
+    optimize_dic_stop_word(dic3_1)
+    # optimize_dic_word_length(dic3_1, 2, 999)
+    time1 = time.time()
+    print("Create vocabulary cost: ", time1 - start_time, "s")
+    result = training_testing_data(dic3_1, 0.7, True, 'stopword-model.txt', False, 'remove_words3_1.txt', True, 'stopword-result.txt', False, "vocabulary3_1.txt", print_result)
+    print("Task3.1 Completed! Please read 'stopword-model.txt' ^u^")
+print("===================================================================================================\n")
+
 
 # Task3.2
-if task_num is "4":
-    print("================================== Task 3.2 =======================================================")
-    task3_2 = input("Please press keyboard to continue 3.2: (1 is print result, else not)")
-    if task3_2 is not None:
-        print_result = False
-        if task3_2 is "1":
-            print_result = True
-        print('Start Task3.2...')
-        start_time = time.time()
-        dic3_2 = dictionary.copy()
-        optimize_dic_word_length(dic3_2, 2, 9)
-        time1 = time.time()
-        print("Create vocabulary cost: ", time1 - start_time, "s")
-        result = training_testing_data(dic3_2, 0.5, True, 'wordlength-model.txt', False, 'remove_words3_2.txt', True, 'wordlength-result.txt', False, "vocabulary3_2.txt", print_result)
-        print("Task3.2 Completed! Please read 'wordlength-model.txt' ^u^")
-    print("===================================================================================================\n")
-    task_num = input("Please input task number:\n5. Task3.3 (frequency) \n6. Task3.4 (smooth)\n")
+print("================================== Task 3.2 =======================================================")
+task3_2 = input("Please press keyboard to continue 3.2: (1 is print result, else not)")
+if task3_2 is not None:
+    print_result = False
+    if task3_2 is "1":
+        print_result = True
+    print('Start Task3.2...')
+    start_time = time.time()
+    dic3_2 = dictionary.copy()
+    optimize_dic_word_length(dic3_2, 2, 9)
+    time1 = time.time()
+    print("Create vocabulary cost: ", time1 - start_time, "s")
+    result = training_testing_data(dic3_2, 0.5, True, 'wordlength-model.txt', False, 'remove_words3_2.txt', True, 'wordlength-result.txt', False, "vocabulary3_2.txt", print_result)
+    print("Task3.2 Completed! Please read 'wordlength-model.txt' ^u^")
+print("===================================================================================================\n")
 
-# Task3.3
-if task_num is "5":
-    #Task3.3
-    # frequency = 1, frequency ≤ 5, frequency ≤ 10, frequency ≤ 15 and frequency ≤ 20
-    # frequency >= 5%, frequency >= 15%, frequency >= 20%, frequency >= 25%
-    print("================================== Task 3.3 =======================================================")
-    task3_3 = input("Please press keyboard to continue Task3.3: (1 is print result, else not)")
-    if task3_3 is not None:
-        print_result = False
-        if task3_3 is "1":
-            print_result = True
-        start_time = time.time()
-        print('Start Task3.3...')
-        analyse_fre_result_list = []
-        append1 = analyse_fre_result_list.append
-        dic3_3_1 = dictionary.copy()
-        append1(change_infrequent(dic3_3_1, True, 1, False, "vocabulary3_3(1).txt", print_result))
-        x1 = len(dic3_3_1)
-        append1(change_infrequent(dic3_3_1, True, 5, False, "vocabulary3_3(5).txt", print_result))
-        x2 = len(dic3_3_1)
-        append1(change_infrequent(dic3_3_1, True, 10, False, "vocabulary3_3(10).txt", print_result))
-        x3 = len(dic3_3_1)
-        append1(change_infrequent(dic3_3_1, True, 15, False, "vocabulary3_3(15).txt", print_result))
-        x4 = len(dic3_3_1)
-        append1(change_infrequent(dic3_3_1, True, 20, False, "vocabulary3_3(20).txt", print_result))
-        x5 = len(dic3_3_1)
-        frequent_list = []
-        for item in dictionary:
-            frequent_list.append(dictionary.get(item)[post_type_num])
-        frequent_list.sort(reverse=True)
-        dic3_3_2 = dictionary.copy()
-        if frequent_list is not None and (len(frequent_list) > 0):
-            frequent1 = cal_frequent(0.05, frequent_list)
-            append1(change_infrequent(dic3_3_2, False, frequent1, False, "vocabulary3_3(top5).txt", print_result))
-            x6 = len(dic3_3_2)
-            frequent2 = cal_frequent(0.10, frequent_list)
-            append1(change_infrequent(dic3_3_2, False, frequent2, False, "vocabulary3_3(top10).txt", print_result))
-            x7 = len(dic3_3_2)
-            frequent3 = cal_frequent(0.15, frequent_list)
-            append1(change_infrequent(dic3_3_2, False, frequent3, False, "vocabulary3_3(top15).txt", print_result))
-            x8 = len(dic3_3_2)
-            frequent4 = cal_frequent(0.2, frequent_list)
-            append1(change_infrequent(dic3_3_2, False, frequent4, False, "vocabulary3_3(top20).txt", print_result))
-            x9 = len(dic3_3_2)
-            frequent5 = cal_frequent(0.25, frequent_list)
-            append1(change_infrequent(dic3_3_2, False, frequent5, False, "vocabulary3_3(top25).txt", print_result))
-            x10 = len(dic3_3_2)
-        # x = ["<=1", "<=5", "<=10", "<=15", "<=20", "top 5%("+str(frequent1)+")", "top 10% ("+str(frequent2)+")", "top 15% ("+str(frequent3)+")", "top 20% ("+str(frequent4)+")", "top 25% ("+str(frequent5)+")"]
-        x = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10]
-        plot_graph("frequency", "words left in vocabulary", x, analyse_fre_result_list)
-        end_time = time.time()
-        print('\nTask3.3 total cost: ', end_time-start_time, "s")
-        print("Task3.3 Completed! Please see the figure! ^u^\n")
-    print("===================================================================================================\n")
-    task_num = input("Please input task number:\n6. Task3.4 (smooth)\n")
+
+#Task3.3
+# frequency = 1, frequency ≤ 5, frequency ≤ 10, frequency ≤ 15 and frequency ≤ 20
+# frequency >= 5%, frequency >= 15%, frequency >= 20%, frequency >= 25%
+print("================================== Task 3.3 =======================================================")
+task3_3 = input("Please press keyboard to continue Task3.3: (1 is print result, else not)")
+if task3_3 is not None:
+    print_result = False
+    if task3_3 is "1":
+        print_result = True
+    start_time = time.time()
+    print('Start Task3.3...')
+    analyse_fre_result_list = []
+    append1 = analyse_fre_result_list.append
+    dic3_3_1 = dictionary.copy()
+    append1(change_infrequent(dic3_3_1, True, 1, False, "vocabulary3_3(1).txt", print_result))
+    x1 = len(dic3_3_1)
+    append1(change_infrequent(dic3_3_1, True, 5, False, "vocabulary3_3(5).txt", print_result))
+    x2 = len(dic3_3_1)
+    append1(change_infrequent(dic3_3_1, True, 10, False, "vocabulary3_3(10).txt", print_result))
+    x3 = len(dic3_3_1)
+    append1(change_infrequent(dic3_3_1, True, 15, False, "vocabulary3_3(15).txt", print_result))
+    x4 = len(dic3_3_1)
+    append1(change_infrequent(dic3_3_1, True, 20, False, "vocabulary3_3(20).txt", print_result))
+    x5 = len(dic3_3_1)
+    frequent_list = []
+    for item in dictionary:
+        frequent_list.append(dictionary.get(item)[post_type_num])
+    frequent_list.sort(reverse=True)
+    dic3_3_2 = dictionary.copy()
+    if frequent_list is not None and (len(frequent_list) > 0):
+        frequent1 = cal_frequent(0.05, frequent_list)
+        append1(change_infrequent(dic3_3_2, False, frequent1, False, "vocabulary3_3(top5).txt", print_result))
+        x6 = len(dic3_3_2)
+        frequent2 = cal_frequent(0.10, frequent_list)
+        append1(change_infrequent(dic3_3_2, False, frequent2, False, "vocabulary3_3(top10).txt", print_result))
+        x7 = len(dic3_3_2)
+        frequent3 = cal_frequent(0.15, frequent_list)
+        append1(change_infrequent(dic3_3_2, False, frequent3, False, "vocabulary3_3(top15).txt", print_result))
+        x8 = len(dic3_3_2)
+        frequent4 = cal_frequent(0.2, frequent_list)
+        append1(change_infrequent(dic3_3_2, False, frequent4, False, "vocabulary3_3(top20).txt", print_result))
+        x9 = len(dic3_3_2)
+        frequent5 = cal_frequent(0.25, frequent_list)
+        append1(change_infrequent(dic3_3_2, False, frequent5, False, "vocabulary3_3(top25).txt", print_result))
+        x10 = len(dic3_3_2)
+    # x = ["<=1", "<=5", "<=10", "<=15", "<=20", "top 5%("+str(frequent1)+")", "top 10% ("+str(frequent2)+")", "top 15% ("+str(frequent3)+")", "top 20% ("+str(frequent4)+")", "top 25% ("+str(frequent5)+")"]
+    x = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10]
+    plot_graph("frequency", "words left in vocabulary", x, analyse_fre_result_list)
+    end_time = time.time()
+    print('\nTask3.3 total cost: ', end_time-start_time, "s")
+    print("Task3.3 Completed! Please see the figure! ^u^\n")
+print("===================================================================================================\n")
+
 
 # Task3.4
-if task_num is "6":
-    print("================================== Task 3.4 =======================================================")
-    task3_4 = input("Please press keyboard to continue Task3.4: (1 is print result, else not)")
-    if task3_4 is not None:
-        print_result = False
-        if task3_4 is "1":
-            print_result = True
-        start_time = time.time()
-        print('Start Task3.4...')
-        analyse_smooth_result_list = []
-        append2 = analyse_smooth_result_list.append
-        for i in range(11):
-            result_list = change_smooth(i/10, False, "vocabulary3_4(" + str(i/10) + ").txt", print_result)
-            append2(result_list)
-        x = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-        plot_graph("smooth", "smooth", x, analyse_smooth_result_list)
-        time1 = time.time()
-        print("\nTask3.4 total cost: ", time1 - start_time, "s")
-        print("Task3.4 Completed! Please see the figure! ^u^\n")
-    print("===================================================================================================\n")
+print("================================== Task 3.4 =======================================================")
+task3_4 = input("Please press keyboard to continue Task3.4: (1 is print result, else not)")
+if task3_4 is not None:
+    print_result = False
+    if task3_4 is "1":
+        print_result = True
+    start_time = time.time()
+    print('Start Task3.4...')
+    analyse_smooth_result_list = []
+    append2 = analyse_smooth_result_list.append
+    for i in range(11):
+        result_list = change_smooth(i/10, False, "vocabulary3_4(" + str(i/10) + ").txt", print_result)
+        append2(result_list)
+    x = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    plot_graph("smooth", "smooth", x, analyse_smooth_result_list)
+    time1 = time.time()
+    print("\nTask3.4 total cost: ", time1 - start_time, "s")
+    print("Task3.4 Completed! Please see the figure! ^u^\n")
+print("===================================================================================================\n")
